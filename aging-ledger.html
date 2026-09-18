@@ -1,0 +1,657 @@
+<title>The Aging Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f6f2e8;
+    --surface: #fffcf5;
+    --surface-2: #efe7d5;
+    --ink: #1d180f;
+    --ink-2: #5c5443;
+    --muted: #918770;
+    --hairline: #e2d8bf;
+    --hairline-strong: #cfc3a3;
+    --accent: #b34e26;
+    --accent-ink: #ffffff;
+    --accent-soft: #f3decb;
+    --accent-2: #7a2f16;
+    --age-1: #d99e68;
+    --age-2: #cf8148;
+    --age-3: #a8542a;
+    --age-4: #6e2f18;
+    --good: #0ca30c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #15120c;
+      --surface: #1d1911;
+      --surface-2: #262016;
+      --ink: #f5efe0;
+      --ink-2: #c9bda1;
+      --muted: #8f8368;
+      --hairline: #332b1c;
+      --hairline-strong: #463b26;
+      --accent: #e08750;
+      --accent-ink: #1d1911;
+      --accent-soft: #3a2818;
+      --accent-2: #f0a374;
+      --age-1: #dcb68c;
+      --age-2: #c9884f;
+      --age-3: #a85c34;
+      --age-4: #7a3a22;
+      --good: #3fbf3f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #15120c;
+    --surface: #1d1911;
+    --surface-2: #262016;
+    --ink: #f5efe0;
+    --ink-2: #c9bda1;
+    --muted: #8f8368;
+    --hairline: #332b1c;
+    --hairline-strong: #463b26;
+    --accent: #e08750;
+    --accent-ink: #1d1911;
+    --accent-soft: #3a2818;
+    --accent-2: #f0a374;
+    --age-1: #dcb68c;
+    --age-2: #c9884f;
+    --age-3: #a85c34;
+    --age-4: #7a3a22;
+    --good: #3fbf3f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); }
+
+  h1, h2, h3 { font-family: "IBM Plex Serif", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, th button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+  .prose { max-width: 760px; }
+
+  /* ---- nav ---- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--page) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding-block: 12px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .brand-mark { font-family: "IBM Plex Mono"; font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+  .brand-name { font-family: "IBM Plex Serif"; font-weight: 600; font-size: 16px; }
+  nav.seclinks { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  nav.seclinks::-webkit-scrollbar { display: none; }
+  nav.seclinks a {
+    font-family: "IBM Plex Mono"; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--ink-2); text-decoration: none; white-space: nowrap;
+    padding: 8px 10px; border-radius: 4px;
+  }
+  nav.seclinks a:hover { color: var(--ink); background: var(--surface-2); }
+
+  /* ---- hero ---- */
+  .hero { padding-block: 56px 40px; border-bottom: 1px solid var(--hairline); }
+  .eyebrow {
+    font-family: "IBM Plex Mono"; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .rule { height: 1px; width: 28px; background: var(--accent); }
+  .hero h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.14; letter-spacing: -0.01em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p.lede { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin-top: 18px; }
+  .hero .asof { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+
+  /* ---- kpi row ---- */
+  .kpis {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--hairline); border: 1px solid var(--hairline);
+    margin-top: 32px; border-radius: 6px; overflow: hidden;
+  }
+  @media (max-width: 780px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--surface); padding: 18px 18px 16px; }
+  .kpi .label { font-family: "IBM Plex Mono"; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  .kpi .value { font-family: "IBM Plex Serif"; font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.01em; }
+  .kpi .sub { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+
+  /* ---- sections ---- */
+  section.exhibit { padding-block: 52px; border-bottom: 1px solid var(--hairline); }
+  section.exhibit:last-of-type { border-bottom: none; }
+  .exhibit-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .exhibit-num {
+    font-family: "IBM Plex Mono"; font-size: 12px; color: var(--accent); letter-spacing: 0.05em;
+    border: 1px solid var(--accent); border-radius: 999px; padding: 2px 9px;
+  }
+  h2.exhibit-title { font-size: 24px; }
+  .exhibit-dek { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin-top: 12px; max-width: 720px; }
+
+  .finding {
+    margin-top: 20px; padding: 14px 16px; background: var(--accent-soft);
+    border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+    font-size: 14.5px; line-height: 1.55;
+  }
+  .finding strong { color: var(--accent-2); }
+
+  /* ---- aging small multiples ---- */
+  .aging-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
+  @media (max-width: 700px) { .aging-grid { grid-template-columns: 1fr; } }
+  .aging-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; padding: 20px 20px 16px; }
+  .aging-panel h3 { font-size: 14px; font-family: "IBM Plex Mono"; letter-spacing: 0.03em; }
+  .aging-panel .panel-total { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .axis-ticks { display: flex; justify-content: space-between; font-family: "IBM Plex Mono"; font-size: 10.5px; color: var(--muted); margin-top: 14px; padding-left: 84px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; position: relative; }
+  .bar-row .bucket-label { width: 74px; flex: 0 0 auto; font-family: "IBM Plex Mono"; font-size: 12px; color: var(--ink-2); text-align: right; }
+  .bar-track { flex: 1; position: relative; height: 22px; background: repeating-linear-gradient(to right, var(--hairline) 0, var(--hairline) 1px, transparent 1px, transparent 25%); border-radius: 3px; }
+  .bar-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; min-width: 3px; display: flex; align-items: center; transition: width 0.5s ease; }
+  .bar-fill .fill-label { position: absolute; left: calc(100% + 8px); white-space: nowrap; font-family: "IBM Plex Mono"; font-size: 11.5px; color: var(--ink-2); }
+  .bar-fill.tiny .fill-label { left: 6px; color: var(--accent-ink); }
+
+  /* ---- concentration chart ---- */
+  .conc-wrap { margin-top: 28px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; padding: 22px 22px 18px; }
+  .conc-row { display: grid; grid-template-columns: 170px 1fr 92px; align-items: center; gap: 12px; padding-block: 7px; }
+  .conc-row + .conc-row { border-top: 1px solid var(--hairline); }
+  .conc-name { font-size: 13.5px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .conc-tag {
+    font-family: "IBM Plex Mono"; font-size: 9.5px; letter-spacing: 0.03em; text-transform: uppercase;
+    background: var(--surface-2); color: var(--ink-2); border-radius: 3px; padding: 1.5px 5px;
+    border: 1px solid var(--hairline-strong);
+  }
+  .conc-track { position: relative; height: 16px; background: var(--surface-2); border-radius: 3px; }
+  .conc-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); border-radius: 3px; min-width: 2px; }
+  .conc-amount { font-family: "IBM Plex Mono"; font-size: 12.5px; text-align: right; }
+
+  /* ---- table ---- */
+  .table-controls { display: flex; align-items: center; gap: 14px; margin-top: 26px; flex-wrap: wrap; justify-content: space-between; }
+  .search-box { position: relative; }
+  .search-box input {
+    font-family: "IBM Plex Mono"; font-size: 13px; background: var(--surface);
+    border: 1px solid var(--hairline-strong); border-radius: 6px; padding: 9px 12px 9px 30px;
+    color: var(--ink); width: 240px;
+  }
+  .search-box::before {
+    content: ""; position: absolute; left: 10px; top: 50%; width: 12px; height: 12px;
+    transform: translateY(-50%);
+    border: 1.5px solid var(--muted); border-radius: 50%;
+    box-shadow: 4px 4px 0 -3px var(--muted);
+  }
+  .row-count { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); }
+  .table-scroll { overflow-x: auto; margin-top: 14px; border: 1px solid var(--hairline); border-radius: 8px; }
+  table.register { width: 100%; border-collapse: collapse; min-width: 760px; background: var(--surface); }
+  table.register thead th {
+    position: sticky; top: 49px; background: var(--surface-2);
+    text-align: left; font-family: "IBM Plex Mono"; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--hairline-strong); white-space: nowrap;
+  }
+  table.register thead th button {
+    all: unset; cursor: pointer; display: flex; align-items: center; gap: 5px; font: inherit; letter-spacing: inherit; color: inherit;
+  }
+  table.register thead th button .arrow { font-size: 9px; opacity: 0.4; }
+  table.register thead th button[aria-sort="ascending"] .arrow,
+  table.register thead th button[aria-sort="descending"] .arrow { opacity: 1; color: var(--accent); }
+  table.register tbody td { padding: 8px 12px; border-bottom: 1px solid var(--hairline); font-size: 13px; white-space: nowrap; }
+  table.register tbody tr:last-child td { border-bottom: none; }
+  table.register tbody tr:hover { background: var(--surface-2); }
+  td.num { text-align: right; }
+  td.rank-cell { color: var(--muted); font-family: "IBM Plex Mono"; }
+  .age-chip {
+    display: inline-flex; align-items: center; gap: 5px; font-family: "IBM Plex Mono"; font-size: 11.5px;
+  }
+  .age-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .no-results { padding: 32px; text-align: center; color: var(--muted); font-size: 13.5px; }
+
+  /* ---- reading / methodology ---- */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 24px; }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+  .callout-list { display: flex; flex-direction: column; gap: 18px; }
+  .callout { padding-left: 16px; border-left: 2px solid var(--hairline-strong); }
+  .callout .num { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--accent); }
+  .callout p { margin: 4px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .callout p strong { color: var(--ink); }
+
+  dl.method { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; font-size: 13.5px; }
+  dl.method dt { font-family: "IBM Plex Mono"; font-size: 11px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  dl.method dd { margin: 0; color: var(--ink-2); line-height: 1.55; }
+  dl.method code { font-family: "IBM Plex Mono"; background: var(--surface-2); border-radius: 3px; padding: 1px 5px; font-size: 12.5px; color: var(--ink); }
+
+  footer { padding-block: 30px 50px; }
+  footer p { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 720px; }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: var(--ink); color: var(--page); font-family: "IBM Plex Mono"; font-size: 11.5px;
+    padding: 6px 9px; border-radius: 5px; opacity: 0; transform: translate(-50%, -130%);
+    transition: opacity 0.1s ease; white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill { transition: none; }
+  }
+</style>
+
+<div id="tooltip"></div>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">MSI · O2C</span>
+      <span class="brand-name">The Aging Ledger</span>
+    </div>
+    <nav class="seclinks">
+      <a href="#overview">Overview</a>
+      <a href="#aging">Aging</a>
+      <a href="#concentration">Concentration</a>
+      <a href="#register">Register</a>
+      <a href="#reading">Reading it</a>
+      <a href="#method">Method</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero" id="overview">
+    <div class="eyebrow"><span class="rule"></span>ORDER-TO-CASH &middot; OPEN ITEM ANALYSIS</div>
+    <h1>100 invoices are carrying <em>$165.2M</em> of Meridian Silicon's uncollected receivables.</h1>
+    <p class="lede">
+      Every one of them is seven figures. Every one is untouched by a single cash application.
+      And on average, they've been outstanding for 128 days — nearly twice as long as MSI takes
+      to collect an invoice that actually gets paid. This is a walkthrough of the 100 largest
+      open items in Accounts Receivable: how big the pile is, who is holding it, how old it has
+      gotten, and what a collections team should do about it Monday morning.
+    </p>
+    <p class="asof">As of 2026&#8209;09&#8209;17 &middot; Oracle EBS, AR.AR_PAYMENT_SCHEDULES_ALL, balance method &middot; full transaction history Jan 2024&ndash;May 2026</p>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Total open AR</div>
+        <div class="value tabular">$853.0M</div>
+        <div class="sub">918 open items &middot; 134 customers</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Top 100 items</div>
+        <div class="value tabular">$165.2M</div>
+        <div class="sub">19.4% of open AR, from 10.9% of items</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Customers holding them</div>
+        <div class="value tabular">37</div>
+        <div class="sub">top 5 = 54.2% of the cohort</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Avg. days past due</div>
+        <div class="value tabular">128.0</div>
+        <div class="sub">vs. 69.3d to collect a paid invoice</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="exhibit" id="aging">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 1</span>
+      <h2 class="exhibit-title">These aren't the oldest debts &mdash; they're the biggest</h2>
+    </div>
+    <p class="exhibit-dek">
+      If the top 100 were simply "whatever has been forgotten longest," its aging profile would
+      skew older than the rest of the book. It doesn't. Side by side against all 918 open items,
+      the $165.2M cohort ages almost identically to the wider population &mdash; concentrated in the
+      91&ndash;180 day band, with nothing in the current bucket and nothing over a year. Size, not
+      neglect, is what put these invoices on this list.
+    </p>
+    <div class="aging-grid">
+      <div class="aging-panel">
+        <h3>TOP 100 ITEMS &middot; $165.2M</h3>
+        <div class="panel-total">share of the $165.2M cohort, by age band</div>
+        <div id="chart-top100"></div>
+        <div class="axis-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+      <div class="aging-panel">
+        <h3>ALL 918 OPEN ITEMS &middot; $853.0M</h3>
+        <div class="panel-total">share of the full $853.0M open book, by age band</div>
+        <div id="chart-full"></div>
+        <div class="axis-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+    </div>
+    <div class="finding">
+      <strong>88.6%</strong> of the top-100 dollars are more than 90 days past due, against
+      <strong>87.4%</strong> for the open book as a whole. And of all 918 open items &mdash; large
+      or small &mdash; not one shows a partial payment: <code class="mono">amount_due_remaining</code>
+      equals <code class="mono">amount_due_original</code> on every single row. Nothing here is a
+      stalled reconciliation; every open item is simply unpaid, in full.
+    </div>
+  </section>
+
+  <section class="exhibit" id="concentration">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 2</span>
+      <h2 class="exhibit-title">The same five accounts run both books</h2>
+    </div>
+    <p class="exhibit-dek">
+      Four of MSI's five largest revenue customers &mdash; Apex Mobile, Helia Devices, Aurion
+      Distribution, Vantek Components &mdash; are also its four largest holders of aged receivables
+      inside this cohort. That's the structural risk in one sentence: the customers MSI can least
+      afford to press hard on are the ones sitting on the most overdue cash.
+    </p>
+    <div class="conc-wrap" id="conc-chart"></div>
+  </section>
+
+  <section class="exhibit" id="register">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 3</span>
+      <h2 class="exhibit-title">The register &mdash; all 100 items</h2>
+    </div>
+    <p class="exhibit-dek">
+      Ranked by amount outstanding. Sort any column, or search a customer to see their full
+      exposure inside the cohort. The left edge of each row is tinted by age band &mdash; darker
+      means older.
+    </p>
+    <div class="table-controls">
+      <div class="search-box">
+        <input type="text" id="customer-search" placeholder="Filter by customer&hellip;" aria-label="Filter register by customer name">
+      </div>
+      <div class="row-count" id="row-count">Showing 100 of 100 items</div>
+    </div>
+    <div class="table-scroll">
+      <table class="register" id="register-table">
+        <thead>
+          <tr>
+            <th style="width:44px;"><button data-key="rank" aria-sort="ascending">#<span class="arrow">&#9660;</span></button></th>
+            <th><button data-key="customer">Customer<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="invoice">Invoice<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="trx_date">Invoice date<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="due_date">Due date<span class="arrow">&#9650;</span></button></th>
+            <th style="text-align:right;"><button data-key="days_past_due">Days past due<span class="arrow">&#9650;</span></button></th>
+            <th style="text-align:right;"><button data-key="amount">Amount open<span class="arrow">&#9650;</span></button></th>
+          </tr>
+        </thead>
+        <tbody id="register-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="exhibit" id="reading">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 4</span>
+      <h2 class="exhibit-title">Reading it</h2>
+    </div>
+    <div class="two-col">
+      <div class="callout-list">
+        <div class="callout">
+          <div class="num">01</div>
+          <p><strong>Four calls cover more than half the cohort.</strong> Apex Mobile, Helia
+          Devices, Aurion Distribution, and Vantek Components together hold $83.1M of the $165.2M
+          &mdash; a single coordinated outreach to four credit contacts would move more of the
+          needle than working the other 96 invoices combined.</p>
+        </div>
+        <div class="callout">
+          <div class="num">02</div>
+          <p><strong>The 91&ndash;180 day band is where the money actually is.</strong> $133.6M of
+          the $165.2M (80.9%) sits in that single band. These invoices are well past terms but not
+          yet written-off candidates &mdash; the highest-leverage collections window is right now,
+          before they roll into the 181&ndash;365 day tier.</p>
+        </div>
+        <div class="callout">
+          <div class="num">03</div>
+          <p><strong>Nothing here is a service or billing dispute.</strong> Zero partial payments
+          across all 918 open items rules out the usual "short-paid, needs reconciliation" excuse.
+          These are invoices customers have simply not paid &mdash; a credit and collections
+          conversation, not an AR-ops cleanup.</p>
+        </div>
+        <div class="callout">
+          <div class="num">04</div>
+          <p><strong>128 days average vs. 69.3 days to collect.</strong> MSI's paid population
+          already resolves slower than a ~45&ndash;47 day top-quartile benchmark. The top 100 open
+          items are running at nearly double MSI's own already-slow average &mdash; this is the
+          tail dragging the average down, not noise around it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="finding" style="margin-top:0;">
+          None of this cohort's four biggest holders can be pressed the way a small, low-strategic-value
+          account can. Apex Mobile alone is 21.8% of MSI's billed revenue &mdash; a credit hold on
+          that account is a revenue decision, not just a collections one. Any remediation plan here
+          has to run through Sales and Finance jointly, not AR Ops alone.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="exhibit" id="method" style="border-bottom:none;">
+    <div class="exhibit-head">
+      <span class="exhibit-num">METHOD</span>
+      <h2 class="exhibit-title">How this was built</h2>
+    </div>
+    <dl class="method">
+      <dt>Open item</dt>
+      <dd>A row in <code>AR.AR_PAYMENT_SCHEDULES_ALL</code> with <code>STATUS = 'OP'</code>.
+      Customer name resolved two hops out &mdash;
+      <code>RA_CUSTOMER_TRX_ALL.BILL_TO_CUSTOMER_ID &rarr; HZ_CUST_ACCOUNTS &rarr; HZ_PARTIES.PARTY_NAME</code>.</dd>
+
+      <dt>Ranking</dt>
+      <dd>All 918 open items ordered by <code>AMOUNT_DUE_REMAINING</code> descending; top 100
+      taken as the cohort. Nothing in the population is partially paid, so
+      <code>AMOUNT_DUE_REMAINING</code> equals <code>AMOUNT_DUE_ORIGINAL</code> on every row.</dd>
+
+      <dt>Aging</dt>
+      <dd>Days past due computed as of 2026&#8209;09&#8209;17 minus <code>DUE_DATE</code>. This is a
+      balance-method exposure snapshot, not a DSO calculation &mdash;
+      <code>AR_RECEIVABLE_APPLICATIONS_ALL</code> links only to already-closed schedules in this
+      dataset, so realized collection speed (69.3 days, cited above) is measured separately, on the
+      paid population only.</dd>
+
+      <dt>Window</dt>
+      <dd>Full transaction history, Jan 2024 &ndash; May 2026 (28 GL periods). This is a point-in-time
+      register of what's owed today, not a trailing-window metric.</dd>
+
+      <dt>Revenue cross-ref</dt>
+      <dd>"Top revenue customer" tags reference MSI's all-history billed-revenue concentration
+      (Apex Mobile 21.8%, Helia Devices 12.0%, Aurion Distribution 9.7%, Vantek Components 9.2%,
+      Cipher Computing Corp 2.5%), computed independently from <code>AR.RA_CUSTOMER_TRX_LINES_ALL</code>.</dd>
+
+      <dt>Source</dt>
+      <dd>Oracle EBS (Autonomous Data Warehouse), single operating unit (<code>ORG_ID 204</code>).
+      Queried via the TextQL <code>refinery</code> CLI on 2026&#8209;09&#8209;17.</dd>
+    </dl>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Meridian Silicon Inc. (MSI) is a fictional-but-production-shaped fabless semiconductor
+      demo estate. Figures on this page were re-derived directly from the live database rather
+      than quoted from prior analysis &mdash; re-run before citing elsewhere, and always state the
+      window and method alongside any number pulled from it.
+    </p>
+  </div>
+</footer>
+
+<script>
+  var TOP100_AGING = [
+    { bucket: "61–90d",  n: 11, amount: 18758755.50,  pct: 11.4 },
+    { bucket: "91–180d", n: 81, amount: 133617776.00, pct: 80.9 },
+    { bucket: "181–365d",n: 8,  amount: 12839081.55,  pct: 7.8  },
+    { bucket: "365d+",   n: 0,  amount: 0,           pct: 0.0  }
+  ];
+  var FULL_AGING = [
+    { bucket: "61–90d",  n: 114, amount: 107163778.17, pct: 12.6 },
+    { bucket: "91–180d", n: 616, amount: 615969886.98, pct: 72.2 },
+    { bucket: "181–365d",n: 101, amount: 89993981.41,  pct: 10.5 },
+    { bucket: "365d+",   n: 87,  amount: 39919077.90,  pct: 4.7  }
+  ];
+  var AGE_COLORS = ["var(--age-1)", "var(--age-2)", "var(--age-3)", "var(--age-4)"];
+
+  var TOP_CUSTOMERS = [
+    { customer: "Apex Mobile Inc",         amount: 38168014.00, revTag: "Top-4 revenue" },
+    { customer: "Helia Devices Co Ltd",    amount: 22023928.23, revTag: "Top-4 revenue" },
+    { customer: "Aurion Distribution Inc", amount: 13728204.38, revTag: "Top-4 revenue" },
+    { customer: "Vantek Components LLC",   amount: 9225946.39,  revTag: "Top-4 revenue" },
+    { customer: "Verdant Smart Co",        amount: 6330597.46,  revTag: null },
+    { customer: "Cipher Computing Corp",   amount: 6184092.03,  revTag: "Top-5 revenue" },
+    { customer: "Cosmos Compute LLC",      amount: 5056945.45,  revTag: null },
+    { customer: "Lumina Mobile Ltd",       amount: 4996791.64,  revTag: null },
+    { customer: "Equinox AI Holdings",     amount: 4758837.81,  revTag: null },
+    { customer: "Everest Embedded Inc",    amount: 3597060.00,  revTag: null }
+  ];
+
+  var REGISTER = [{"rank":1,"invoice":"INV-00001633","customer":"Aurion Distribution Inc","trx_date":"2026-05-02","due_date":"2026-06-16","amount":2124050.72,"days_past_due":93},{"rank":2,"invoice":"INV-00003056","customer":"Apex Mobile Inc","trx_date":"2026-04-17","due_date":"2026-06-16","amount":2028432.16,"days_past_due":93},{"rank":3,"invoice":"INV-00001540","customer":"Aurion Distribution Inc","trx_date":"2025-11-30","due_date":"2026-01-14","amount":1949736.32,"days_past_due":246},{"rank":4,"invoice":"INV-00000820","customer":"Northwind Systems","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1938934.98,"days_past_due":93},{"rank":5,"invoice":"INV-00001662","customer":"Kobe Industrial Co","trx_date":"2026-03-05","due_date":"2026-04-04","amount":1932527.02,"days_past_due":166},{"rank":6,"invoice":"INV-00002316","customer":"Aurion Distribution Inc","trx_date":"2026-04-04","due_date":"2026-05-19","amount":1917879.6,"days_past_due":121},{"rank":7,"invoice":"INV-00003322","customer":"Everest Embedded Inc","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1915288.28,"days_past_due":108},{"rank":8,"invoice":"INV-00003446","customer":"Cosmos Compute LLC","trx_date":"2026-04-27","due_date":"2026-05-27","amount":1914300.61,"days_past_due":113},{"rank":9,"invoice":"INV-00001138","customer":"Beacon Mobility Corp","trx_date":"2026-03-04","due_date":"2026-04-03","amount":1905952.14,"days_past_due":167},{"rank":10,"invoice":"INV-00003662","customer":"Acumen Tech Corp","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1892314.83,"days_past_due":93},{"rank":11,"invoice":"INV-00003262","customer":"Helia Devices Co Ltd","trx_date":"2026-05-02","due_date":"2026-07-01","amount":1875008.56,"days_past_due":78},{"rank":12,"invoice":"INV-00002077","customer":"Helia Devices Co Ltd","trx_date":"2026-03-05","due_date":"2026-05-04","amount":1851485.15,"days_past_due":136},{"rank":13,"invoice":"INV-00004482","customer":"Helia Devices Co Ltd","trx_date":"2026-04-15","due_date":"2026-06-14","amount":1831640.65,"days_past_due":95},{"rank":14,"invoice":"INV-00003266","customer":"Apex Mobility Ltd","trx_date":"2026-03-18","due_date":"2026-04-17","amount":1824903.83,"days_past_due":153},{"rank":15,"invoice":"INV-00001094","customer":"Helia Devices Co Ltd","trx_date":"2026-05-02","due_date":"2026-07-01","amount":1820489.88,"days_past_due":78},{"rank":16,"invoice":"INV-00002329","customer":"Riverside Robotics","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1816244.7,"days_past_due":108},{"rank":17,"invoice":"INV-00001652","customer":"Helia Devices Co Ltd","trx_date":"2026-01-20","due_date":"2026-03-21","amount":1778655.48,"days_past_due":180},{"rank":18,"invoice":"INV-00004452","customer":"Fuji Drive Systems","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1778356.79,"days_past_due":108},{"rank":19,"invoice":"INV-00000192","customer":"Apex Mobile Inc","trx_date":"2026-03-23","due_date":"2026-05-22","amount":1760902.92,"days_past_due":118},{"rank":20,"invoice":"INV-00000225","customer":"Apex Mobile Inc","trx_date":"2026-04-24","due_date":"2026-06-23","amount":1755133.44,"days_past_due":86},{"rank":21,"invoice":"INV-00005160","customer":"Lumina Mobile Ltd","trx_date":"2026-04-26","due_date":"2026-06-10","amount":1748208.0,"days_past_due":99},{"rank":22,"invoice":"INV-00003917","customer":"Apex Mobile Inc","trx_date":"2026-03-24","due_date":"2026-05-23","amount":1743523.06,"days_past_due":117},{"rank":23,"invoice":"INV-00000216","customer":"Pioneer Connect Corp","trx_date":"2026-03-11","due_date":"2026-04-10","amount":1743197.65,"days_past_due":160},{"rank":24,"invoice":"INV-00001429","customer":"Apex Mobile Inc","trx_date":"2026-04-23","due_date":"2026-06-22","amount":1728994.98,"days_past_due":87},{"rank":25,"invoice":"INV-00002468","customer":"Apex Mobile Inc","trx_date":"2026-04-07","due_date":"2026-06-06","amount":1726404.73,"days_past_due":103},{"rank":26,"invoice":"INV-00000344","customer":"Beacon Cloud Ltd","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1720888.71,"days_past_due":108},{"rank":27,"invoice":"INV-00000380","customer":"Helia Devices Co Ltd","trx_date":"2026-02-19","due_date":"2026-04-20","amount":1720536.26,"days_past_due":150},{"rank":28,"invoice":"INV-00004163","customer":"Apex Mobile Inc","trx_date":"2026-05-02","due_date":"2026-07-01","amount":1715501.94,"days_past_due":78},{"rank":29,"invoice":"INV-00002312","customer":"Apex Mobile Inc","trx_date":"2026-05-02","due_date":"2026-07-01","amount":1712229.8,"days_past_due":78},{"rank":30,"invoice":"INV-00001186","customer":"Apex Mobile Inc","trx_date":"2026-04-27","due_date":"2026-06-26","amount":1701103.71,"days_past_due":83},{"rank":31,"invoice":"INV-00000269","customer":"Riverside Robotics","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1692331.84,"days_past_due":108},{"rank":32,"invoice":"INV-00003483","customer":"Helia Devices Co Ltd","trx_date":"2026-03-19","due_date":"2026-05-18","amount":1690898.74,"days_past_due":122},{"rank":33,"invoice":"INV-00002629","customer":"Lumina Mobile Ltd","trx_date":"2026-04-26","due_date":"2026-06-10","amount":1688793.2,"days_past_due":99},{"rank":34,"invoice":"INV-00003319","customer":"Arctic Wireless Co","trx_date":"2026-03-29","due_date":"2026-04-28","amount":1688785.37,"days_past_due":142},{"rank":35,"invoice":"INV-00003697","customer":"Everest Embedded Inc","trx_date":"2026-04-27","due_date":"2026-05-27","amount":1681771.72,"days_past_due":113},{"rank":36,"invoice":"INV-00002313","customer":"Verdant Smart Co","trx_date":"2026-04-03","due_date":"2026-05-18","amount":1681584.76,"days_past_due":122},{"rank":37,"invoice":"INV-00001012","customer":"Sentinel IoT Group","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1680428.55,"days_past_due":108},{"rank":38,"invoice":"INV-00000543","customer":"Apex Mobile Inc","trx_date":"2026-04-11","due_date":"2026-06-10","amount":1675363.8,"days_past_due":99},{"rank":39,"invoice":"INV-00004297","customer":"Apex Mobile Inc","trx_date":"2026-03-20","due_date":"2026-05-19","amount":1673671.7,"days_past_due":121},{"rank":40,"invoice":"INV-00001957","customer":"Cipher Computing Corp","trx_date":"2026-04-25","due_date":"2026-06-09","amount":1667560.09,"days_past_due":100},{"rank":41,"invoice":"INV-00002339","customer":"Apex Mobile Inc","trx_date":"2026-04-08","due_date":"2026-06-07","amount":1667147.04,"days_past_due":102},{"rank":42,"invoice":"INV-00003134","customer":"Helia Devices Co Ltd","trx_date":"2026-02-12","due_date":"2026-04-13","amount":1667001.36,"days_past_due":157},{"rank":43,"invoice":"INV-00002382","customer":"Apex Mobile Inc","trx_date":"2026-05-01","due_date":"2026-06-30","amount":1658098.79,"days_past_due":79},{"rank":44,"invoice":"INV-00004576","customer":"Apex Mobile Inc","trx_date":"2026-04-26","due_date":"2026-06-25","amount":1657380.72,"days_past_due":84},{"rank":45,"invoice":"INV-00003857","customer":"Apex Mobile Inc","trx_date":"2026-03-17","due_date":"2026-05-16","amount":1656422.01,"days_past_due":124},{"rank":46,"invoice":"INV-00003552","customer":"Solace Devices Inc","trx_date":"2026-02-18","due_date":"2026-04-04","amount":1629561.98,"days_past_due":166},{"rank":47,"invoice":"INV-00004235","customer":"Vesta Computing Group","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1627814.25,"days_past_due":93},{"rank":48,"invoice":"INV-00004475","customer":"Equinox AI Holdings","trx_date":"2026-04-21","due_date":"2026-05-21","amount":1625005.47,"days_past_due":119},{"rank":49,"invoice":"INV-00002295","customer":"Equinox AI Holdings","trx_date":"2026-04-11","due_date":"2026-05-11","amount":1619817.58,"days_past_due":129},{"rank":50,"invoice":"INV-00001371","customer":"Forge Holdings Pvt Ltd","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1617886.58,"days_past_due":108},{"rank":51,"invoice":"INV-00003484","customer":"Forge Innovations LLC","trx_date":"2025-10-27","due_date":"2025-11-26","amount":1617105.15,"days_past_due":295},{"rank":52,"invoice":"INV-00004984","customer":"Helia Devices Co Ltd","trx_date":"2026-01-09","due_date":"2026-03-10","amount":1611040.33,"days_past_due":191},{"rank":53,"invoice":"INV-00002902","customer":"Helia Devices Co Ltd","trx_date":"2026-04-29","due_date":"2026-06-28","amount":1607707.96,"days_past_due":81},{"rank":54,"invoice":"INV-00001535","customer":"Aurion Distribution Inc","trx_date":"2026-02-25","due_date":"2026-04-11","amount":1602343.19,"days_past_due":159},{"rank":55,"invoice":"INV-00005042","customer":"Forge Holdings Pvt Ltd","trx_date":"2025-12-02","due_date":"2026-01-01","amount":1599239.74,"days_past_due":259},{"rank":56,"invoice":"INV-00004321","customer":"Verdant Smart Co","trx_date":"2026-03-04","due_date":"2026-04-18","amount":1588261.31,"days_past_due":152},{"rank":57,"invoice":"INV-00004230","customer":"Pioneer Devices Corp","trx_date":"2026-03-11","due_date":"2026-04-10","amount":1586354.81,"days_past_due":160},{"rank":58,"invoice":"INV-00000871","customer":"Cosmos Compute LLC","trx_date":"2026-04-17","due_date":"2026-05-17","amount":1581410.88,"days_past_due":123},{"rank":59,"invoice":"INV-00005537","customer":"Apex Mobile Inc","trx_date":"2026-02-26","due_date":"2026-04-27","amount":1580561.29,"days_past_due":143},{"rank":60,"invoice":"INV-00001456","customer":"Apex Mobile Inc","trx_date":"2026-03-31","due_date":"2026-05-30","amount":1579225.52,"days_past_due":110},{"rank":61,"invoice":"INV-00001843","customer":"Vertex Wireless Ltd","trx_date":"2026-03-16","due_date":"2026-04-15","amount":1576182.66,"days_past_due":155},{"rank":62,"invoice":"INV-00000642","customer":"Helia Devices Co Ltd","trx_date":"2026-03-25","due_date":"2026-05-24","amount":1574456.48,"days_past_due":116},{"rank":63,"invoice":"INV-00000757","customer":"Bramble Mobile Inc","trx_date":"2026-02-24","due_date":"2026-04-10","amount":1574246.32,"days_past_due":160},{"rank":64,"invoice":"INV-00003879","customer":"Verdant Smart Co","trx_date":"2026-04-27","due_date":"2026-06-11","amount":1574183.71,"days_past_due":98},{"rank":65,"invoice":"INV-00000082","customer":"Vantek Components LLC","trx_date":"2026-04-16","due_date":"2026-05-31","amount":1571486.92,"days_past_due":109},{"rank":66,"invoice":"INV-00001687","customer":"Vantek Components LLC","trx_date":"2026-04-21","due_date":"2026-06-05","amount":1568070.84,"days_past_due":104},{"rank":67,"invoice":"INV-00005575","customer":"Catalyst Solutions GmbH","trx_date":"2026-05-02","due_date":"2026-06-01","amount":1566396.0,"days_past_due":108},{"rank":68,"invoice":"INV-00001067","customer":"Vantek Components LLC","trx_date":"2026-03-11","due_date":"2026-04-25","amount":1565935.51,"days_past_due":145},{"rank":69,"invoice":"INV-00000056","customer":"Aurion Distribution Inc","trx_date":"2026-04-19","due_date":"2026-06-03","amount":1565669.16,"days_past_due":106},{"rank":70,"invoice":"INV-00002808","customer":"Vantek Components LLC","trx_date":"2026-03-05","due_date":"2026-04-19","amount":1564347.3,"days_past_due":151},{"rank":71,"invoice":"INV-00000134","customer":"Cosmos Compute LLC","trx_date":"2026-02-13","due_date":"2026-03-15","amount":1561233.96,"days_past_due":186},{"rank":72,"invoice":"INV-00005244","customer":"Lumina Mobile Ltd","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1559790.44,"days_past_due":93},{"rank":73,"invoice":"INV-00001420","customer":"Apex Mobile Inc","trx_date":"2026-03-13","due_date":"2026-05-12","amount":1552450.19,"days_past_due":128},{"rank":74,"invoice":"INV-00001581","customer":"Apex Mobile Inc","trx_date":"2026-03-24","due_date":"2026-05-23","amount":1544528.57,"days_past_due":117},{"rank":75,"invoice":"INV-00001708","customer":"Voyager Compute Ltd","trx_date":"2026-04-03","due_date":"2026-05-03","amount":1539306.72,"days_past_due":137},{"rank":76,"invoice":"INV-00004925","customer":"Meridian Mobility Corp","trx_date":"2026-04-10","due_date":"2026-05-10","amount":1537701.5,"days_past_due":130},{"rank":77,"invoice":"INV-00002160","customer":"Apex Mobile Inc","trx_date":"2026-04-05","due_date":"2026-06-04","amount":1537517.82,"days_past_due":105},{"rank":78,"invoice":"INV-00003074","customer":"Aurion Distribution Inc","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1535274.51,"days_past_due":93},{"rank":79,"invoice":"INV-00000960","customer":"Vesta Computing Group","trx_date":"2026-02-28","due_date":"2026-04-14","amount":1534414.27,"days_past_due":156},{"rank":80,"invoice":"INV-00002786","customer":"Apex Mobile Inc","trx_date":"2026-05-02","due_date":"2026-07-01","amount":1527105.72,"days_past_due":78},{"rank":81,"invoice":"INV-00002413","customer":"Catalyst Compute Corp","trx_date":"2026-04-29","due_date":"2026-05-29","amount":1523286.75,"days_past_due":111},{"rank":82,"invoice":"INV-00004626","customer":"Cipher Computing Corp","trx_date":"2026-05-02","due_date":"2026-06-16","amount":1518254.38,"days_past_due":93},{"rank":83,"invoice":"INV-00003102","customer":"Aurion Distribution Inc","trx_date":"2026-04-22","due_date":"2026-06-06","amount":1517229.98,"days_past_due":103},{"rank":84,"invoice":"INV-00004197","customer":"Aurion Distribution Inc","trx_date":"2026-03-18","due_date":"2026-05-02","amount":1516020.9,"days_past_due":138},{"rank":85,"invoice":"INV-00003951","customer":"Pioneer Devices Corp","trx_date":"2026-02-02","due_date":"2026-03-04","amount":1515710.91,"days_past_due":197},{"rank":86,"invoice":"INV-00003973","customer":"Equinox AI Holdings","trx_date":"2026-04-16","due_date":"2026-05-16","amount":1514014.76,"days_past_due":124},{"rank":87,"invoice":"INV-00002928","customer":"Helia Devices Co Ltd","trx_date":"2026-03-08","due_date":"2026-05-07","amount":1510194.96,"days_past_due":133},{"rank":88,"invoice":"INV-00003140","customer":"Apex Mobile Inc","trx_date":"2026-04-08","due_date":"2026-06-07","amount":1507507.47,"days_past_due":102},{"rank":89,"invoice":"INV-00000332","customer":"Apex Robotics Co","trx_date":"2026-04-12","due_date":"2026-05-12","amount":1507418.74,"days_past_due":128},{"rank":90,"invoice":"INV-00001502","customer":"Forge Devices Pte Ltd","trx_date":"2026-03-31","due_date":"2026-04-30","amount":1507016.35,"days_past_due":140},{"rank":91,"invoice":"INV-00000968","customer":"Centurion Defense Systems","trx_date":"2026-04-19","due_date":"2026-05-19","amount":1501238.89,"days_past_due":121},{"rank":92,"invoice":"INV-00000741","customer":"Cipher Computing Corp","trx_date":"2025-11-13","due_date":"2025-12-28","amount":1500202.72,"days_past_due":263},{"rank":93,"invoice":"INV-00002175","customer":"Cipher Computing Corp","trx_date":"2026-04-28","due_date":"2026-06-12","amount":1498074.84,"days_past_due":97},{"rank":94,"invoice":"INV-00004104","customer":"Quantum Edge Networks","trx_date":"2026-03-26","due_date":"2026-04-25","amount":1489489.62,"days_past_due":145},{"rank":95,"invoice":"INV-00003683","customer":"Verdant Smart Co","trx_date":"2026-04-20","due_date":"2026-06-04","amount":1486567.68,"days_past_due":105},{"rank":96,"invoice":"INV-00002086","customer":"Helia Devices Co Ltd","trx_date":"2025-09-11","due_date":"2025-11-10","amount":1484812.42,"days_past_due":311},{"rank":97,"invoice":"INV-00002068","customer":"Catalyst Technologies Inc","trx_date":"2026-03-17","due_date":"2026-04-16","amount":1479958.01,"days_past_due":154},{"rank":98,"invoice":"INV-00003174","customer":"Vantek Components LLC","trx_date":"2026-03-24","due_date":"2026-05-08","amount":1479477.15,"days_past_due":132},{"rank":99,"invoice":"INV-00002087","customer":"Apex Mobile Inc","trx_date":"2026-03-12","due_date":"2026-05-11","amount":1478806.62,"days_past_due":129},{"rank":100,"invoice":"INV-00002797","customer":"Vantek Components LLC","trx_date":"2026-03-20","due_date":"2026-05-04","amount":1476628.67,"days_past_due":136}];
+
+  function fmtUSD(n, decimals) {
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: decimals || 0, maximumFractionDigits: decimals || 0 });
+  }
+  function fmtM(n) { return "$" + (n / 1e6).toFixed(1) + "M"; }
+  function fmtDate(s) {
+    var d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  var tooltip = document.getElementById("tooltip");
+  function showTip(el, text) {
+    var r = el.getBoundingClientRect();
+    tooltip.textContent = text;
+    tooltip.style.left = (r.left + r.width / 2) + "px";
+    tooltip.style.top = r.top + "px";
+    tooltip.style.opacity = "1";
+  }
+  function hideTip() { tooltip.style.opacity = "0"; }
+
+  function renderAgingChart(containerId, data) {
+    var el = document.getElementById(containerId);
+    var maxPct = Math.max.apply(null, data.map(function (d) { return d.pct; }));
+    var html = "";
+    data.forEach(function (d, i) {
+      var w = maxPct > 0 ? (d.pct / 100) * 100 : 0;
+      var tiny = d.pct < 10 && d.pct > 0;
+      html += '<div class="bar-row">' +
+        '<div class="bucket-label">' + d.bucket + '</div>' +
+        '<div class="bar-track">' +
+          '<div class="bar-fill' + (tiny ? " tiny" : "") + '" data-tip="' + d.n + ' items · ' + fmtM(d.amount) + '" style="width:' + w + '%; background:' + AGE_COLORS[i] + ';">' +
+            (d.pct > 0 ? '<span class="fill-label">' + d.pct.toFixed(1) + '%</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".bar-fill").forEach(function (bar) {
+      bar.addEventListener("mouseenter", function () { showTip(bar, bar.getAttribute("data-tip")); });
+      bar.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  function renderConcentration() {
+    var el = document.getElementById("conc-chart");
+    var max = Math.max.apply(null, TOP_CUSTOMERS.map(function (d) { return d.amount; }));
+    var html = "";
+    TOP_CUSTOMERS.forEach(function (d) {
+      var w = (d.amount / max) * 100;
+      html += '<div class="conc-row">' +
+        '<div class="conc-name">' + d.customer + (d.revTag ? '<span class="conc-tag">' + d.revTag + '</span>' : '') + '</div>' +
+        '<div class="conc-track"><div class="conc-fill" data-tip="' + fmtUSD(d.amount) + '" style="width:' + w + '%;"></div></div>' +
+        '<div class="conc-amount tabular">' + fmtM(d.amount) + '</div>' +
+      '</div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".conc-fill").forEach(function (bar) {
+      bar.addEventListener("mouseenter", function () { showTip(bar, bar.getAttribute("data-tip")); });
+      bar.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  function ageBucketOf(days) {
+    if (days <= 90) return 0;
+    if (days <= 180) return 1;
+    if (days <= 365) return 2;
+    return 3;
+  }
+  var AGE_LABELS = ["61–90d", "91–180d", "181–365d", "365d+"];
+
+  var sortState = { key: "rank", dir: "asc" };
+  var filterText = "";
+
+  function currentRows() {
+    var rows = REGISTER.filter(function (r) {
+      return filterText === "" || r.customer.toLowerCase().indexOf(filterText) !== -1;
+    });
+    var key = sortState.key, dir = sortState.dir === "asc" ? 1 : -1;
+    rows.sort(function (a, b) {
+      var av = a[key], bv = b[key];
+      if (typeof av === "string") { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+    return rows;
+  }
+
+  function renderTable() {
+    var rows = currentRows();
+    var body = document.getElementById("register-body");
+    document.getElementById("row-count").textContent = "Showing " + rows.length + " of 100 items";
+    if (rows.length === 0) {
+      body.innerHTML = '<tr><td colspan="7" class="no-results">No items match &ldquo;' + filterText + '&rdquo;.</td></tr>';
+      return;
+    }
+    var html = "";
+    rows.forEach(function (r) {
+      var bIdx = ageBucketOf(r.days_past_due);
+      html += '<tr style="border-left:3px solid ' + AGE_COLORS[bIdx] + ';">' +
+        '<td class="rank-cell tabular">' + r.rank + '</td>' +
+        '<td>' + r.customer + '</td>' +
+        '<td class="mono">' + r.invoice + '</td>' +
+        '<td class="mono">' + fmtDate(r.trx_date) + '</td>' +
+        '<td class="mono">' + fmtDate(r.due_date) + '</td>' +
+        '<td class="num tabular"><span class="age-chip"><span class="age-dot" style="background:' + AGE_COLORS[bIdx] + ';"></span>' + r.days_past_due + 'd</span></td>' +
+        '<td class="num mono tabular">' + fmtUSD(r.amount) + '</td>' +
+      '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  document.querySelectorAll("#register-table thead button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var key = btn.getAttribute("data-key");
+      document.querySelectorAll("#register-table thead button").forEach(function (b) { b.removeAttribute("aria-sort"); });
+      if (sortState.key === key) {
+        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+      } else {
+        sortState.key = key;
+        sortState.dir = (key === "amount" || key === "days_past_due") ? "desc" : "asc";
+      }
+      btn.setAttribute("aria-sort", sortState.dir === "asc" ? "ascending" : "descending");
+      btn.querySelector(".arrow").innerHTML = sortState.dir === "asc" ? "&#9650;" : "&#9660;";
+      renderTable();
+    });
+  });
+
+  document.getElementById("customer-search").addEventListener("input", function (e) {
+    filterText = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+
+  renderAgingChart("chart-top100", TOP100_AGING);
+  renderAgingChart("chart-full", FULL_AGING);
+  renderConcentration();
+  renderTable();
+</script>

@@ -1,0 +1,631 @@
+<title>The Aging Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f6f2e8;
+    --surface: #fffcf5;
+    --surface-2: #efe7d5;
+    --ink: #1d180f;
+    --ink-2: #5c5443;
+    --muted: #918770;
+    --hairline: #e2d8bf;
+    --hairline-strong: #cfc3a3;
+    --accent: #b34e26;
+    --accent-ink: #ffffff;
+    --accent-soft: #f3decb;
+    --accent-2: #7a2f16;
+    --age-1: #dd9c66;
+    --age-2: #cf8148;
+    --age-3: #bb6c37;
+    --age-4: #9c552a;
+    --age-5: #7c4020;
+    --age-6: #5c2c15;
+    --good: #0ca30c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #15120c;
+      --surface: #1d1911;
+      --surface-2: #262016;
+      --ink: #f5efe0;
+      --ink-2: #c9bda1;
+      --muted: #8f8368;
+      --hairline: #332b1c;
+      --hairline-strong: #463b26;
+      --accent: #e08750;
+      --accent-ink: #1d1911;
+      --accent-soft: #3a2818;
+      --accent-2: #f0a374;
+      --age-1: #eec6a0;
+      --age-2: #dfab7c;
+      --age-3: #cf8f5c;
+      --age-4: #b8723f;
+      --age-5: #9a5730;
+      --age-6: #7f4322;
+      --good: #3fbf3f;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #15120c;
+    --surface: #1d1911;
+    --surface-2: #262016;
+    --ink: #f5efe0;
+    --ink-2: #c9bda1;
+    --muted: #8f8368;
+    --hairline: #332b1c;
+    --hairline-strong: #463b26;
+    --accent: #e08750;
+    --accent-ink: #1d1911;
+    --accent-soft: #3a2818;
+    --accent-2: #f0a374;
+    --age-1: #eec6a0;
+    --age-2: #dfab7c;
+    --age-3: #cf8f5c;
+    --age-4: #b8723f;
+    --age-5: #9a5730;
+    --age-6: #7f4322;
+    --good: #3fbf3f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); }
+
+  h1, h2, h3 { font-family: "IBM Plex Serif", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, th button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+  .prose { max-width: 760px; }
+
+  /* ---- nav ---- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--page) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding-block: 12px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .brand-mark { font-family: "IBM Plex Mono"; font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+  .brand-name { font-family: "IBM Plex Serif"; font-weight: 600; font-size: 16px; }
+  nav.seclinks { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  nav.seclinks::-webkit-scrollbar { display: none; }
+  nav.seclinks a {
+    font-family: "IBM Plex Mono"; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--ink-2); text-decoration: none; white-space: nowrap;
+    padding: 8px 10px; border-radius: 4px;
+  }
+  nav.seclinks a:hover { color: var(--ink); background: var(--surface-2); }
+
+  /* ---- hero ---- */
+  .hero { padding-block: 56px 40px; border-bottom: 1px solid var(--hairline); }
+  .eyebrow {
+    font-family: "IBM Plex Mono"; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .rule { height: 1px; width: 28px; background: var(--accent); }
+  .hero h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.14; letter-spacing: -0.01em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p.lede { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin-top: 18px; }
+  .hero .asof { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+
+  /* ---- kpi row ---- */
+  .kpis {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--hairline); border: 1px solid var(--hairline);
+    margin-top: 32px; border-radius: 6px; overflow: hidden;
+  }
+  @media (max-width: 780px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--surface); padding: 18px 18px 16px; }
+  .kpi .label { font-family: "IBM Plex Mono"; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  .kpi .value { font-family: "IBM Plex Serif"; font-size: 28px; font-weight: 600; margin-top: 6px; letter-spacing: -0.01em; }
+  .kpi .sub { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+
+  /* ---- sections ---- */
+  section.exhibit { padding-block: 52px; border-bottom: 1px solid var(--hairline); }
+  section.exhibit:last-of-type { border-bottom: none; }
+  .exhibit-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .exhibit-num {
+    font-family: "IBM Plex Mono"; font-size: 12px; color: var(--accent); letter-spacing: 0.05em;
+    border: 1px solid var(--accent); border-radius: 999px; padding: 2px 9px;
+  }
+  h2.exhibit-title { font-size: 24px; }
+  .exhibit-dek { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin-top: 12px; max-width: 720px; }
+
+  .finding {
+    margin-top: 20px; padding: 14px 16px; background: var(--accent-soft);
+    border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+    font-size: 14.5px; line-height: 1.55;
+  }
+  .finding strong { color: var(--accent-2); }
+
+  /* ---- aging small multiples ---- */
+  .aging-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
+  @media (max-width: 700px) { .aging-grid { grid-template-columns: 1fr; } }
+  .aging-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; padding: 20px 20px 16px; }
+  .aging-panel h3 { font-size: 14px; font-family: "IBM Plex Mono"; letter-spacing: 0.03em; }
+  .aging-panel .panel-total { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .axis-ticks { display: flex; justify-content: space-between; font-family: "IBM Plex Mono"; font-size: 10.5px; color: var(--muted); margin-top: 14px; padding-left: 84px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; position: relative; }
+  .bar-row .bucket-label { width: 74px; flex: 0 0 auto; font-family: "IBM Plex Mono"; font-size: 12px; color: var(--ink-2); text-align: right; }
+  .bar-track { flex: 1; position: relative; height: 22px; background: repeating-linear-gradient(to right, var(--hairline) 0, var(--hairline) 1px, transparent 1px, transparent 25%); border-radius: 3px; }
+  .bar-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; min-width: 3px; display: flex; align-items: center; transition: width 0.5s ease; }
+  .bar-fill .fill-label { position: absolute; left: calc(100% + 8px); white-space: nowrap; font-family: "IBM Plex Mono"; font-size: 11.5px; color: var(--ink-2); }
+  .bar-fill.tiny .fill-label { left: 6px; color: var(--accent-ink); }
+
+  /* ---- concentration chart ---- */
+  .conc-wrap { margin-top: 28px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; padding: 22px 22px 18px; }
+  .conc-row { display: grid; grid-template-columns: 170px 1fr 92px; align-items: center; gap: 12px; padding-block: 7px; }
+  .conc-row + .conc-row { border-top: 1px solid var(--hairline); }
+  .conc-name { font-size: 13.5px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .conc-tag {
+    font-family: "IBM Plex Mono"; font-size: 9.5px; letter-spacing: 0.03em; text-transform: uppercase;
+    background: var(--surface-2); color: var(--ink-2); border-radius: 3px; padding: 1.5px 5px;
+    border: 1px solid var(--hairline-strong);
+  }
+  .conc-track { position: relative; height: 16px; background: var(--surface-2); border-radius: 3px; }
+  .conc-fill { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); border-radius: 3px; min-width: 2px; }
+  .conc-amount { font-family: "IBM Plex Mono"; font-size: 12.5px; text-align: right; }
+
+  /* ---- table ---- */
+  .table-controls { display: flex; align-items: center; gap: 14px; margin-top: 26px; flex-wrap: wrap; justify-content: space-between; }
+  .search-box { position: relative; }
+  .search-box input {
+    font-family: "IBM Plex Mono"; font-size: 13px; background: var(--surface);
+    border: 1px solid var(--hairline-strong); border-radius: 6px; padding: 9px 12px 9px 30px;
+    color: var(--ink); width: 240px;
+  }
+  .search-box::before {
+    content: ""; position: absolute; left: 10px; top: 50%; width: 12px; height: 12px;
+    transform: translateY(-50%);
+    border: 1.5px solid var(--muted); border-radius: 50%;
+    box-shadow: 4px 4px 0 -3px var(--muted);
+  }
+  .row-count { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); }
+  .table-scroll { overflow-x: auto; margin-top: 14px; border: 1px solid var(--hairline); border-radius: 8px; }
+  table.register { width: 100%; border-collapse: collapse; min-width: 760px; background: var(--surface); }
+  table.register thead th {
+    position: sticky; top: 49px; background: var(--surface-2);
+    text-align: left; font-family: "IBM Plex Mono"; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--hairline-strong); white-space: nowrap;
+  }
+  table.register thead th button {
+    all: unset; cursor: pointer; display: flex; align-items: center; gap: 5px; font: inherit; letter-spacing: inherit; color: inherit;
+  }
+  table.register thead th button .arrow { font-size: 9px; opacity: 0.4; }
+  table.register thead th button[aria-sort="ascending"] .arrow,
+  table.register thead th button[aria-sort="descending"] .arrow { opacity: 1; color: var(--accent); }
+  table.register tbody td { padding: 8px 12px; border-bottom: 1px solid var(--hairline); font-size: 13px; white-space: nowrap; }
+  table.register tbody tr:last-child td { border-bottom: none; }
+  table.register tbody tr:hover { background: var(--surface-2); }
+  td.num { text-align: right; }
+  td.rank-cell { color: var(--muted); font-family: "IBM Plex Mono"; }
+  .age-chip {
+    display: inline-flex; align-items: center; gap: 5px; font-family: "IBM Plex Mono"; font-size: 11.5px;
+  }
+  .age-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .no-results { padding: 32px; text-align: center; color: var(--muted); font-size: 13.5px; }
+
+  /* ---- reading / methodology ---- */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 24px; }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+  .callout-list { display: flex; flex-direction: column; gap: 18px; }
+  .callout { padding-left: 16px; border-left: 2px solid var(--hairline-strong); }
+  .callout .num { font-family: "IBM Plex Mono"; font-size: 12px; color: var(--accent); }
+  .callout p { margin: 4px 0 0; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
+  .callout p strong { color: var(--ink); }
+
+  dl.method { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; font-size: 13.5px; }
+  dl.method dt { font-family: "IBM Plex Mono"; font-size: 11px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  dl.method dd { margin: 0; color: var(--ink-2); line-height: 1.55; }
+  dl.method code { font-family: "IBM Plex Mono"; background: var(--surface-2); border-radius: 3px; padding: 1px 5px; font-size: 12.5px; color: var(--ink); }
+
+  footer { padding-block: 30px 50px; }
+  footer p { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 720px; }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: var(--ink); color: var(--page); font-family: "IBM Plex Mono"; font-size: 11.5px;
+    padding: 6px 9px; border-radius: 5px; opacity: 0; transform: translate(-50%, -130%);
+    transition: opacity 0.1s ease; white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill { transition: none; }
+  }
+</style>
+
+<div id="tooltip"></div>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">MSI · O2C</span>
+      <span class="brand-name">The Aging Ledger</span>
+    </div>
+    <nav class="seclinks">
+      <a href="#overview">Overview</a>
+      <a href="#aging">Aging</a>
+      <a href="#concentration">Concentration</a>
+      <a href="#register">Register</a>
+      <a href="#reading">Reading it</a>
+      <a href="#method">Method</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero" id="overview">
+    <div class="eyebrow"><span class="rule"></span>ORDER-TO-CASH &middot; OPEN ITEM ANALYSIS</div>
+    <h1>100 invoices are carrying <em>__TOP100_TOTAL_M__</em> of Meridian Silicon's uncollected receivables.</h1>
+    <p class="lede">
+      Every one of them is seven figures. Every one is untouched by a single cash application.
+      And on average, they've been outstanding for __AVG_DPD__ days &mdash; this is a walkthrough of
+      the 100 largest open items in Accounts Receivable: how big the pile is, who is holding it, how
+      old it has gotten, and what a collections team should do about it Monday morning.
+    </p>
+    <p class="asof">As of __AS_OF__ &middot; Oracle EBS, AR.AR_PAYMENT_SCHEDULES_ALL, balance method &middot; full transaction history __DATA_WINDOW__</p>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Total open AR</div>
+        <div class="value tabular">__TOTAL_OPEN_AR_M__</div>
+        <div class="sub">__TOTAL_OPEN_ITEMS__ open items &middot; __TOTAL_OPEN_CUSTOMERS__ customers</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Top 100 items</div>
+        <div class="value tabular">__TOP100_TOTAL_M__</div>
+        <div class="sub">__TOP100_SHARE_PCT__% of open AR, from __TOP100_ITEMS_SHARE_PCT__% of items</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Customers holding them</div>
+        <div class="value tabular">__TOP100_N_CUSTOMERS__</div>
+        <div class="sub">top 5 = __TOP5_SHARE_PCT__% of the cohort</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Avg. days past due</div>
+        <div class="value tabular">__AVG_DPD__</div>
+        <div class="sub">vs. __PAID_DSO__d to collect a paid invoice</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="exhibit" id="aging">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 1</span>
+      <h2 class="exhibit-title">These aren't the oldest debts &mdash; they're the biggest</h2>
+    </div>
+    <p class="exhibit-dek">
+      If the top 100 were simply "whatever has been forgotten longest," its aging profile would
+      skew older than the rest of the book. Compare its age distribution side by side against all
+      __TOTAL_OPEN_ITEMS__ open items to see whether size or neglect is what put these invoices on
+      this list.
+    </p>
+    <div class="aging-grid">
+      <div class="aging-panel">
+        <h3>TOP 100 ITEMS &middot; __TOP100_TOTAL_M__</h3>
+        <div class="panel-total">share of the __TOP100_TOTAL_M__ cohort, by age band</div>
+        <div id="chart-top100"></div>
+        <div class="axis-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+      <div class="aging-panel">
+        <h3>ALL __TOTAL_OPEN_ITEMS__ OPEN ITEMS &middot; __TOTAL_OPEN_AR_M__</h3>
+        <div class="panel-total">share of the full __TOTAL_OPEN_AR_M__ open book, by age band</div>
+        <div id="chart-full"></div>
+        <div class="axis-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+    </div>
+    <div class="finding">
+      <strong>__TOP100_OVER90_PCT__%</strong> of the top-100 dollars are more than 90 days past due, against
+      <strong>__FULL_OVER90_PCT__%</strong> for the open book as a whole. And of all __TOTAL_OPEN_ITEMS__ open items
+      &mdash; large or small &mdash; __PARTIAL_PAYMENT_SENTENCE__
+    </div>
+  </section>
+
+  <section class="exhibit" id="concentration">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 2</span>
+      <h2 class="exhibit-title">Revenue concentration and collections risk, side by side</h2>
+    </div>
+    <p class="exhibit-dek">
+      __REVENUE_OVERLAP_SENTENCE__ That's the structural risk in one sentence: the customers MSI
+      can least afford to press hard on may be the ones sitting on the most overdue cash.
+    </p>
+    <div class="conc-wrap" id="conc-chart"></div>
+  </section>
+
+  <section class="exhibit" id="register">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 3</span>
+      <h2 class="exhibit-title">The register &mdash; all 100 items</h2>
+    </div>
+    <p class="exhibit-dek">
+      Ranked by amount outstanding. Sort any column, or search a customer to see their full
+      exposure inside the cohort. The left edge of each row is tinted by age band &mdash; darker
+      means older.
+    </p>
+    <div class="table-controls">
+      <div class="search-box">
+        <input type="text" id="customer-search" placeholder="Filter by customer&hellip;" aria-label="Filter register by customer name">
+      </div>
+      <div class="row-count" id="row-count">Showing 100 of 100 items</div>
+    </div>
+    <div class="table-scroll">
+      <table class="register" id="register-table">
+        <thead>
+          <tr>
+            <th style="width:44px;"><button data-key="rank" aria-sort="ascending">#<span class="arrow">&#9660;</span></button></th>
+            <th><button data-key="customer">Customer<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="invoice">Invoice<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="trx_date">Invoice date<span class="arrow">&#9650;</span></button></th>
+            <th><button data-key="due_date">Due date<span class="arrow">&#9650;</span></button></th>
+            <th style="text-align:right;"><button data-key="days_past_due">Days past due<span class="arrow">&#9650;</span></button></th>
+            <th style="text-align:right;"><button data-key="amount">Amount open<span class="arrow">&#9650;</span></button></th>
+          </tr>
+        </thead>
+        <tbody id="register-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="exhibit" id="reading">
+    <div class="exhibit-head">
+      <span class="exhibit-num">EXHIBIT 4</span>
+      <h2 class="exhibit-title">Reading it</h2>
+    </div>
+    <div class="two-col">
+      <div class="callout-list">
+        <div class="callout">
+          <div class="num">01</div>
+          <p><strong>__TOP_N_HOLDERS__ accounts cover __TOP_HOLDERS_SHARE_PCT__% of the cohort.</strong>
+          __TOP_HOLDERS_NAMES__ together hold __TOP_HOLDERS_M__ of the __TOP100_TOTAL_M__ &mdash; a
+          coordinated outreach to their credit contacts would move more of the needle than working
+          the remaining invoices one by one.</p>
+        </div>
+        <div class="callout">
+          <div class="num">02</div>
+          <p><strong>The __PEAK_BUCKET_LABEL__ band is where the money actually is.</strong>
+          __PEAK_BUCKET_M__ of the __TOP100_TOTAL_M__ (__PEAK_BUCKET_PCT__%) sits in that single
+          band. These invoices are well past terms but not yet written-off candidates &mdash; the
+          highest-leverage collections window is right now, before they roll into an older tier.</p>
+        </div>
+        <div class="callout">
+          <div class="num">03</div>
+          <p><strong>__DISPUTE_HEADLINE__</strong> __PARTIAL_PAYMENT_SENTENCE__</p>
+        </div>
+        <div class="callout">
+          <div class="num">04</div>
+          <p><strong>__AVG_DPD__ days average vs. __PAID_DSO__ days to collect.</strong> Against a
+          ~45&ndash;47 day top-quartile benchmark, compare how far the top-100 average sits from
+          MSI's own realized collection speed on invoices that do get paid &mdash; that gap is the
+          tail dragging the average down, not noise around it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="finding" style="margin-top:0;">
+          __REVENUE_RISK_SENTENCE__ Any remediation plan for the largest holders should run through
+          Sales and Finance jointly, not AR Ops alone.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="exhibit" id="method" style="border-bottom:none;">
+    <div class="exhibit-head">
+      <span class="exhibit-num">METHOD</span>
+      <h2 class="exhibit-title">How this was built</h2>
+    </div>
+    <dl class="method">
+      <dt>Open item</dt>
+      <dd>A row in <code>AR.AR_PAYMENT_SCHEDULES_ALL</code> with <code>STATUS = 'OP'</code>.
+      Customer name resolved two hops out &mdash;
+      <code>RA_CUSTOMER_TRX_ALL.BILL_TO_CUSTOMER_ID &rarr; HZ_CUST_ACCOUNTS &rarr; HZ_PARTIES.PARTY_NAME</code>.</dd>
+
+      <dt>Ranking</dt>
+      <dd>All __TOTAL_OPEN_ITEMS__ open items ordered by <code>AMOUNT_DUE_REMAINING</code>
+      descending; top 100 taken as the cohort.</dd>
+
+      <dt>Aging</dt>
+      <dd>Days past due computed as of __AS_OF__ minus <code>DUE_DATE</code>. This is a
+      balance-method exposure snapshot, not a DSO calculation &mdash;
+      <code>AR_RECEIVABLE_APPLICATIONS_ALL</code> links only to already-closed schedules in this
+      dataset, so realized collection speed (__PAID_DSO__ days, cited above) is measured separately,
+      on the paid population only.</dd>
+
+      <dt>Window</dt>
+      <dd>Full transaction history, __DATA_WINDOW__. This is a point-in-time register of what's owed
+      as of the run date, not a trailing-window metric.</dd>
+
+      <dt>Revenue cross-ref</dt>
+      <dd>"Top revenue customer" tags reference MSI's all-history billed-revenue concentration
+      (__REVENUE_CROSSREF_TEXT__), computed independently from <code>AR.RA_CUSTOMER_TRX_LINES_ALL</code>.</dd>
+
+      <dt>Source</dt>
+      <dd>Oracle EBS (Autonomous Data Warehouse), single operating unit (<code>ORG_ID 204</code>).
+      Queried via the TextQL <code>refinery</code> CLI on __AS_OF__.</dd>
+    </dl>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Meridian Silicon Inc. (MSI) is a fictional-but-production-shaped fabless semiconductor
+      demo estate. Figures on this page were re-derived directly from the live database rather
+      than quoted from prior analysis &mdash; re-run before citing elsewhere, and always state the
+      window and method alongside any number pulled from it.
+    </p>
+  </div>
+</footer>
+
+<script>
+  var TOP100_AGING = __TOP100_AGING_JSON__;
+  var FULL_AGING = __FULL_AGING_JSON__;
+  var AGE_COLORS = ["var(--age-1)", "var(--age-2)", "var(--age-3)", "var(--age-4)", "var(--age-5)", "var(--age-6)"];
+
+  var TOP_CUSTOMERS = __TOP_CUSTOMERS_JSON__;
+
+  var REGISTER = __REGISTER_JSON__;
+
+  function fmtUSD(n, decimals) {
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: decimals || 0, maximumFractionDigits: decimals || 0 });
+  }
+  function fmtM(n) { return "$" + (n / 1e6).toFixed(1) + "M"; }
+  function fmtDate(s) {
+    var d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  var tooltip = document.getElementById("tooltip");
+  function showTip(el, text) {
+    var r = el.getBoundingClientRect();
+    tooltip.textContent = text;
+    tooltip.style.left = (r.left + r.width / 2) + "px";
+    tooltip.style.top = r.top + "px";
+    tooltip.style.opacity = "1";
+  }
+  function hideTip() { tooltip.style.opacity = "0"; }
+
+  function renderAgingChart(containerId, data) {
+    var el = document.getElementById(containerId);
+    var maxPct = Math.max.apply(null, data.map(function (d) { return d.pct; }));
+    var html = "";
+    data.forEach(function (d, i) {
+      var w = maxPct > 0 ? (d.pct / 100) * 100 : 0;
+      var tiny = d.pct < 10 && d.pct > 0;
+      html += '<div class="bar-row">' +
+        '<div class="bucket-label">' + d.bucket + '</div>' +
+        '<div class="bar-track">' +
+          '<div class="bar-fill' + (tiny ? " tiny" : "") + '" data-tip="' + d.n + ' items · ' + fmtM(d.amount) + '" style="width:' + w + '%; background:' + AGE_COLORS[i] + ';">' +
+            (d.pct > 0 ? '<span class="fill-label">' + d.pct.toFixed(1) + '%</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".bar-fill").forEach(function (bar) {
+      bar.addEventListener("mouseenter", function () { showTip(bar, bar.getAttribute("data-tip")); });
+      bar.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  function renderConcentration() {
+    var el = document.getElementById("conc-chart");
+    var max = Math.max.apply(null, TOP_CUSTOMERS.map(function (d) { return d.amount; }));
+    var html = "";
+    TOP_CUSTOMERS.forEach(function (d) {
+      var w = (d.amount / max) * 100;
+      html += '<div class="conc-row">' +
+        '<div class="conc-name">' + d.customer + (d.revTag ? '<span class="conc-tag">' + d.revTag + '</span>' : '') + '</div>' +
+        '<div class="conc-track"><div class="conc-fill" data-tip="' + fmtUSD(d.amount) + '" style="width:' + w + '%;"></div></div>' +
+        '<div class="conc-amount tabular">' + fmtM(d.amount) + '</div>' +
+      '</div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".conc-fill").forEach(function (bar) {
+      bar.addEventListener("mouseenter", function () { showTip(bar, bar.getAttribute("data-tip")); });
+      bar.addEventListener("mouseleave", hideTip);
+    });
+  }
+
+  function ageBucketOf(days) {
+    if (days <= 30) return 0;
+    if (days <= 60) return 1;
+    if (days <= 90) return 2;
+    if (days <= 180) return 3;
+    if (days <= 365) return 4;
+    return 5;
+  }
+  var AGE_LABELS = ["0–30d", "31–60d", "61–90d", "91–180d", "181–365d", "365d+"];
+
+  var sortState = { key: "rank", dir: "asc" };
+  var filterText = "";
+
+  function currentRows() {
+    var rows = REGISTER.filter(function (r) {
+      return filterText === "" || r.customer.toLowerCase().indexOf(filterText) !== -1;
+    });
+    var key = sortState.key, dir = sortState.dir === "asc" ? 1 : -1;
+    rows.sort(function (a, b) {
+      var av = a[key], bv = b[key];
+      if (typeof av === "string") { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+    return rows;
+  }
+
+  function renderTable() {
+    var rows = currentRows();
+    var body = document.getElementById("register-body");
+    document.getElementById("row-count").textContent = "Showing " + rows.length + " of 100 items";
+    if (rows.length === 0) {
+      body.innerHTML = '<tr><td colspan="7" class="no-results">No items match &ldquo;' + filterText + '&rdquo;.</td></tr>';
+      return;
+    }
+    var html = "";
+    rows.forEach(function (r) {
+      var bIdx = ageBucketOf(r.days_past_due);
+      html += '<tr style="border-left:3px solid ' + AGE_COLORS[bIdx] + ';">' +
+        '<td class="rank-cell tabular">' + r.rank + '</td>' +
+        '<td>' + r.customer + '</td>' +
+        '<td class="mono">' + r.invoice + '</td>' +
+        '<td class="mono">' + fmtDate(r.trx_date) + '</td>' +
+        '<td class="mono">' + fmtDate(r.due_date) + '</td>' +
+        '<td class="num tabular"><span class="age-chip"><span class="age-dot" style="background:' + AGE_COLORS[bIdx] + ';"></span>' + r.days_past_due + 'd</span></td>' +
+        '<td class="num mono tabular">' + fmtUSD(r.amount) + '</td>' +
+      '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  document.querySelectorAll("#register-table thead button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var key = btn.getAttribute("data-key");
+      document.querySelectorAll("#register-table thead button").forEach(function (b) { b.removeAttribute("aria-sort"); });
+      if (sortState.key === key) {
+        sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+      } else {
+        sortState.key = key;
+        sortState.dir = (key === "amount" || key === "days_past_due") ? "desc" : "asc";
+      }
+      btn.setAttribute("aria-sort", sortState.dir === "asc" ? "ascending" : "descending");
+      btn.querySelector(".arrow").innerHTML = sortState.dir === "asc" ? "&#9650;" : "&#9660;";
+      renderTable();
+    });
+  });
+
+  document.getElementById("customer-search").addEventListener("input", function (e) {
+    filterText = e.target.value.trim().toLowerCase();
+    renderTable();
+  });
+
+  renderAgingChart("chart-top100", TOP100_AGING);
+  renderAgingChart("chart-full", FULL_AGING);
+  renderConcentration();
+  renderTable();
+</script>
